@@ -1,16 +1,6 @@
 # Node.js & MySQL
 
-## Login info
 
-1. Login to SequelPro
-2. Standard tab
-3. Name: UT Bootcamp DB
-4. Host: localhost (127.0.0.1)
-5. Username: root
-6. Password: root
-7. Database: blank
-8. Port: 8889
-9. DB name: bamazon
 10. Technologies: MySQL database, Node.js, Inquirer NPM package (data input), MySQL NPM package (data storage)
 
 ## Overview
@@ -33,20 +23,6 @@ In README.md file...include screenshots, a gif, and/or a video showing us that y
 
 ### Challenge #1: Customer View (Minimum Requirement)
 
-
-3. The products table should have each of the following columns:
-
-   * item_id (unique id for each product)
-
-   * product_name (Name of product)
-
-   * department_name
-
-   * price (cost to customer)
-
-   * stock_quantity (how much of the product is available in stores)
-
-4. Populate this database with around 10 different products. (i.e. Insert "mock" data rows into this database and table).
 
 5. Then create a Node application called `bamazonCustomer.js`. Running this application will first display all of the items available for sale. Include the ids, names, and prices of products for sale.
 
