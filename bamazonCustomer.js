@@ -16,82 +16,81 @@ var connection = mysql.createConnection({
   database: "bamazonDB"
 });
 
+// "connect" function to connect and run "startBamazon()" function
 connection.connect(function(err) {
   if (err) throw err;
-  console.log("connected as id " + connection.threadId + "\n");
-
   startBamazon();
-
 });
 
-
+// "startBamazon()" function to run query
 function startBamazon() {
+  // select all entries in "products" table
   connection.query("SELECT * FROM products", function(err, res) {
     if (err) throw err;
+      // display results in table
+      console.log("\n");
       console.log("----------------------------------  BAMAZON  ----------------------------------\n");
       console.table(res);
-
-      askQuestions(res);
-
+      // run "askQuestions()" function
+      askQuestions();
   });
 }
 
-
-function askQuestions(res) {
+// "askQuestions()" function to prompt user with 2 questions
+function askQuestions() {
+  
   inquirer
+    // captures user input and assigns to variable "itemID"
     .prompt([{
       message: "What is the item id you would like to buy?",
       type: "input",
       name: "itemID"
     },{
+      // captures user input and assigns to variable "buyUnits"
       message: "How many units would you like to buy?",
       type: "input",
       name: "buyUnits"
     }
   ])
+  // prints out console.log response and runs "updateProduct()" function
   .then(function(answer) {
     console.log("\n");
     console.log("You purchased " + answer.buyUnits + " units from item # " + answer.itemID + ".\n");
-      
     updateProduct(answer);
-
   });
 }
 
-function updateProduct(answer) {
-  console.log("Updating units...\n");
-  var query = connection.query(
+// function validateUnits(isNegative) {
+//     connection.query("CASE WHEN stock_quantity < 0 THEN 'False' ELSE 'True' END FROM products",
+//       function(err, res) {
+//         if (err) throw err;
+//           console.log("----------------------------------  BAMAZON  ----------------------------------\n");
+//           console.table("There are NOT enough units of that product!");
+//           console.table("Please select a lesser number of units or select another item id");
+//           updateProduct();
+//       });
+//     }
 
-    "UPDATE products SET ? WHERE ?",
+// "updateProduct()" function to upate DB
+function updateProduct(answer) {
+  connection.query(
+    // updates item user selected ("itemID") by the amount the user selected ("buyUnits")
+    "UPDATE products SET stock_quantity = stock_quantity - ? WHERE item_id = ?",
+    // "CASE WHEN stock_quantity < 0 THEN 'False' ELSE 'True' END FROM products",
     [
-      { 
-        stock_quantity: stock_quantity - answer.buyUnits 
-      },
-      { 
-        item_id: answer.itemID 
-      }
+      answer.buyUnits, answer.itemID
     ],
+    
     function(err, res) {
+      // select all items in products table and prints out table with new results
       connection.query("SELECT * FROM products", function(err, res) {
+        
         if (err) throw err;
           console.log("----------------------------------  BAMAZON  ----------------------------------\n");
           console.table(res);
-          askQuestions(res);
+          // runs "askQuestions()" function to start again
+          askQuestions();
       });
     }
   );
 }
-
-    //     for (var i = 0; i < res.length; i++) {
-    //       console.log(res[i].item_id + "  |  " + res[i].product_name + "  |  " + res[i].department_name + "  |  " + res[i].price + "  |  " + res[i].stock_quantity);
-    //     }
-
-
-    // console.log(res);
-      // var query = "SELECT item_id, stock_quantity FROM products WHERE ?";
-      // connection.query(query, { itemID: res.item_id, quantity: products.stock_quantity }, function(err, res) {
-      //     if (err) throw err;
-      //     for (var i = 0; i < res.length; i++) {
-      //         console.log("Item ID: " + res[i].item_id + " || Units: " + res[i].stock_quantity);
-      //   }
-      // //   runSearch();
