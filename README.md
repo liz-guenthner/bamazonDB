@@ -6,6 +6,7 @@ Bamazon is an Amazon-like storefront that uses MySQL database accessed by Node.j
 
 ## Links
 https://github.com/liz-guenthner/bamazonDB
+
 https://github.com/liz-guenthner/lizGuenthnerResume
 
 ## Instructions
