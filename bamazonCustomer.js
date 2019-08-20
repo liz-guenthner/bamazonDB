@@ -54,37 +54,37 @@ function askQuestions() {
   ])
   // prints out console.log response and runs "updateProduct()" function
   .then(function(answer) {
-    console.log("\n");
-    console.log("You purchased " + answer.buyUnits + " units from item # " + answer.itemID + ".\n");
-    updateProduct(answer);
+    validateUnits(answer);
   });
 }
 
-// function validateUnits(isNegative) {
-//     connection.query("CASE WHEN stock_quantity < 0 THEN 'False' ELSE 'True' END FROM products",
-//       function(err, res) {
-//         if (err) throw err;
-//           console.log("----------------------------------  BAMAZON  ----------------------------------\n");
-//           console.table("There are NOT enough units of that product!");
-//           console.table("Please select a lesser number of units or select another item id");
-//           updateProduct();
-//       });
-//     }
+function validateUnits(answer) {
+    connection.query("SELECT stock_quantity FROM products WHERE item_id = " + answer.itemID,
+      function(err, res) {
+        if (err) throw err;
+        console.log(parseInt(res[0].stock_quantity));
+          if (res[0].stock_quantity > 0) {
+            console.log("\n");
+            console.log("You purchased " + answer.buyUnits + " units from item # " + answer.itemID + ".\n");
+            updateProduct(answer);
+          } else {
+            console.log("\n");
+            console.table("There are NOT enough units of that product!");
+            console.table("Please select a lesser number of units or select another item id");
+            startBamazon();
+          }
+      });
+    }
 
 // "updateProduct()" function to upate DB
 function updateProduct(answer) {
   connection.query(
     // updates item user selected ("itemID") by the amount the user selected ("buyUnits")
-    "UPDATE products SET stock_quantity = stock_quantity - ? WHERE item_id = ?",
-    // "CASE WHEN stock_quantity < 0 THEN 'False' ELSE 'True' END FROM products",
-    [
-      answer.buyUnits, answer.itemID
-    ],
-    
+    // "UPDATE products SET stock_quantity = CASE WHEN (stock_quantity - ? > 0) THEN stock_quantity = stock_quantity - ? END WHERE item_id = ?"
+    "UPDATE products SET stock_quantity = stock_quantity - " + answer.buyUnits + " WHERE item_id = " + answer.itemID,
     function(err, res) {
       // select all items in products table and prints out table with new results
       connection.query("SELECT * FROM products", function(err, res) {
-        
         if (err) throw err;
           console.log("----------------------------------  BAMAZON  ----------------------------------\n");
           console.table(res);
