@@ -59,14 +59,14 @@ function askQuestions() {
 }
 
 function validateUnits(answer) {
-    connection.query("SELECT stock_quantity FROM products WHERE item_id = " + answer.itemID,
+    connection.query("SELECT stock_quantity FROM products WHERE item_id = ?", answer.itemID,
       function(err, res) {
         if (err) throw err;
         console.log(parseInt(res[0].stock_quantity));
-          if (res[0].stock_quantity > 0) {
+          if (res[0].stock_quantity - answer.buyUnits > 0) {
             console.log("\n");
             console.log("You purchased " + answer.buyUnits + " units from item # " + answer.itemID + ".\n");
-            updateProduct(answer);
+            updateProduct(answer, res[0].stock_quantity);
           } else {
             console.log("\n");
             console.table("There are NOT enough units of that product!");
@@ -77,11 +77,12 @@ function validateUnits(answer) {
     }
 
 // "updateProduct()" function to upate DB
-function updateProduct(answer) {
+function updateProduct(answer, quantity) {
+  const newAvailable = quantity - answer.buyUnits;
   connection.query(
     // updates item user selected ("itemID") by the amount the user selected ("buyUnits")
     // "UPDATE products SET stock_quantity = CASE WHEN (stock_quantity - ? > 0) THEN stock_quantity = stock_quantity - ? END WHERE item_id = ?"
-    "UPDATE products SET stock_quantity = stock_quantity - " + answer.buyUnits + " WHERE item_id = " + answer.itemID,
+    "UPDATE products SET stock_quantity = ?  WHERE item_id = ?", [newAvailable, answer.itemID],
     function(err, res) {
       // select all items in products table and prints out table with new results
       connection.query("SELECT * FROM products", function(err, res) {
